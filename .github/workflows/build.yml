@@ -1,0 +1,25 @@
+name: Build PHPCrypfish Image
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-image:
+    name: Build Images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4 
+
+      - name: Build PHPCrypfish Image
+        run: |
+          docker build -t phpcrypfish:latest .
+
+      - name: Push Image to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          docker tag phpcrypfish ${{ secrets.DOCKER_HUB_USERNAME }}/phpcrypfish:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/phpcrypfish:latest
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
